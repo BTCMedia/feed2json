@@ -4,7 +4,6 @@
 
 // npm
 const FeedParser = require('feedparser')
-const string2stream = require('string-to-stream')
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -117,7 +116,7 @@ function fromStream(stream, url, opts, callback) {
 
   feedparser.on('data', function(post) {
     logThis(opts.log, ' - post = ' + post.guid)
-
+    //console.log(post);
     let item = {}
 
     // Going through fields in the same order as : https://jsonfeed.org/version/1
@@ -153,6 +152,17 @@ function fromStream(stream, url, opts, callback) {
     // summary (optional, string)
     if ( post.summary ) {
       item.summary = post.summary
+    }
+
+    // enclosure (optional, string)
+    if ( post.enclosures ) {
+      if ( post.enclosures.constructor === Object ) {
+        // skip for now
+        item.image = post.enclosures[0].url
+      }
+      else {
+        item.image = post.enclosures[0].url
+      }
     }
 
     // image (optional, string)
@@ -196,16 +206,10 @@ function fromStream(stream, url, opts, callback) {
   })
 }
 
-function fromString(string, url, opts, callback) {
-  let stream = string2stream(string)
-  fromStream(stream, url, opts, callback)
-}
-
 // --------------------------------------------------------------------------------------------------------------------
 
 module.exports = {
-  fromStream,
-  fromString,
+  fromStream
 }
 
 // --------------------------------------------------------------------------------------------------------------------
